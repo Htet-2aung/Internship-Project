@@ -211,7 +211,13 @@ Verified successfully:
 
 From the repository root:
 
+DATABASE_URL and JWT_SECRETKEY should be added as a
+
 ```bash
+git clone https://github.com/Htet-2aung/Internship-Project.git
+cd Internship-Project
+cp .env.example .env
+# (You should add your own JWT secret and local DB credentials to /backend/.env otherwise the build will crashed due to prisma schema generation failure.)
 docker compose build
 docker compose up -d db api frontend
 ```
