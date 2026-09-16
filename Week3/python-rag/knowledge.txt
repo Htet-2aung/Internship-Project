@@ -1,0 +1,5 @@
+React applications are built from reusable components. Props pass data into a component, while state stores data that changes over time. The useState hook adds local state and useEffect runs side effects such as data loading.
+
+Retrieval augmented generation, or RAG, retrieves relevant documents before asking a language model to answer. A typical pipeline loads documents, splits them into chunks, creates embeddings, searches a vector store, and supplies the best context to the model.
+
+PostgreSQL is a relational database. Prisma provides a typed client for PostgreSQL applications. During development, prisma db push synchronizes a Prisma schema with a database. Production systems should use versioned migrations.

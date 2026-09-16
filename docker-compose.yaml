@@ -1,0 +1,64 @@
+services:
+  db:
+    image: pgvector/pgvector:pg15
+    container_name: nest_postgres_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-local}
+      POSTGRES_DB: ${POSTGRES_DB:-user_management}
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d user_management"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: ./Week1and2/backend
+      dockerfile: Dockerfile
+    container_name: nest_backend_api
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://admin:change-me-local@db:5432/user_management?schema=public}
+      JWT_SECRET: ${JWT_SECRET:-change-me-local-jwt-secret}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./Week1and2/backend:/app
+      - /app/node_modules
+
+  frontend:
+    build:
+      context: ./Week1and2/frontend
+      dockerfile: Dockerfile
+    container_name: vite_frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api
+    volumes:
+      - ./Week1and2/frontend:/app
+      - /app/node_modules
+
+  rag:
+    build:
+      context: ./Week3/python-rag
+      dockerfile: Dockerfile
+    profiles: ["rag"]
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://admin:change-me-local@db:5432/user_management}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["python", "rag_pgvector.py", "--question", "What is RAG?"]
+
+volumes:
+  pgdata:
